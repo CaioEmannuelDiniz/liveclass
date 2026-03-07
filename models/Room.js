@@ -12,22 +12,23 @@ const roomSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    organizer:{
+    teacher:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+        ref: "Teacher",
+        required: true,
+        unique: true
     },
-    participants:[{
+    students:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref: "User"
+        ref: "Student"
     }
    ],
-
-   isActivy:{
+   isActive :{
     type: Boolean,
     default: true
    }
 },{timestamps:true});
 
 
-module.exports = mongoose.model("Room",roomSchema);
+const Room = mongoose.model("Room",roomSchema);
+module.exports = Room;
