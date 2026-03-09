@@ -8,7 +8,11 @@ const teacherSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Room",
         unique: true 
-    }
+    },
+    students:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student"
+    }]
 });
 
 const Teacher = mongoose.model("Teacher",teacherSchema);
