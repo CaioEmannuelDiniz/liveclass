@@ -23,7 +23,7 @@ A estrutura foi desenhada para suportar relacionamentos complexos, garantindo in
 | Entidade A | Relação | Entidade B | Regra de Negócio |
 | :--- | :---: | :--- | :--- |
 | **Teacher** | `1 : 1` | **Room** | Um professor possui e gerencia uma única sala ativa por vez. |
-| **Room** | `1 : N` | **Student** | Uma sala armazena uma lista de alunos matriculados nela. |
+| **Teacher** | `1 : N` | **Student** | Uma professor pode estar vinculado a múltiplas alunos. |
 | **Student** | `N : N` | **Room** | Um aluno pode estar vinculado a múltiplas salas simultaneamente. |
 
 ---
