@@ -83,9 +83,8 @@ const StudentController = {
 
     getMyRooms: async (req, res) => {
         try {
-            const {
-                id
-            } = req.user.id;
+            const id = req.user.id;
+
 
             const student = await Student.findById(id).populate({
                 path: 'rooms',
@@ -111,12 +110,12 @@ const StudentController = {
 
     getProfile: async (req, res) => {
         try {
-            
+
             const id = req.user.id;
             const requesterEntity = req.user.entity;
 
 
-            if (!id  && requesterEntity !== "teacher") {
+            if (!id && requesterEntity !== "teacher") {
                 // Se não for o dono e o token NÃO for de professor, nem precisa ir ao banco
                 return res.status(403).json({
                     message: "Acesso negado."
@@ -144,10 +143,7 @@ const StudentController = {
 
     delete: async (req, res) => {
         try {
-            const {
-                id
-            } = req.user.id;;
-
+            const id = req.user.id;;
 
             //1. Verifica o ID existe no banco?
             const student = await Student.findById(id);
