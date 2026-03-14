@@ -9,7 +9,7 @@ const setupRoomSocket = require("./sockets/roomSocket");
 // Importação das rotas
 const studentRoutes = require("./routes/studentRoutes");
 const roomRoutes = require("./routes/roomRoutes");
-// const teacherRoutes = require("./routes/teacherRoutes"); // Adicione quando criar
+const teacherRoutes = require("./routes/teacherRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -23,8 +23,9 @@ app.use(express.json());
 
 // Definição das Rotas
 app.use('/student', studentRoutes);
+app.use('/teacher', teacherRoutes); 
 app.use("/rooms", roomRoutes);
-// app.use("/teachers", teacherRoutes);
+
 
 // Conexão com MongoDB (Corrigido)
 mongoose.connect(process.env.MONGO_URI)
