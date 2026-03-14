@@ -1,7 +1,7 @@
 const Teacher = require("../models/Teacher");
 const Room = require("../models/Room");
-const mongoose = require("mongoose");
 const generateToken = require("../utils/generateToken");
+const bcrypt = require("bcrypt");
 
 const TeacherController = {
 
@@ -132,16 +132,7 @@ const TeacherController = {
     // Buscar todas as salas criadas por um professor específico
     getTeacherRooms: async (req, res) => {
         try {
-            const {
-                id
-            } = req.params;
-
-            // 1. Validar formato do ID
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).json({
-                    message: "ID inválido."
-                });
-            }
+            const id= req.user.id;
 
             // Validar se o ID é do próprio professor ou se é um admin consultando
             if (id !== req.user.id && req.user.entity !== "admin") {

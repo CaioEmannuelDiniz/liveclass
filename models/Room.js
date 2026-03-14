@@ -3,32 +3,33 @@ const mongoose = require("mongoose");
 
 
 const roomSchema = new mongoose.Schema({
-    name:{
+    name: {
         type: String,
         required: true
     },
-    code:{
+    code: {
         type: String,
         required: true,
         unique: true
     },
-    teacher:{
+    teacher: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Teacher",
         required: true,
-        unique: true
     },
-    students:[{
-        type:mongoose.Schema.Types.ObjectId,
+    students: [{
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Student"
+    }],
+    isActive: {
+        type: Boolean,
+        default: true
     }
-   ],
-   isActive :{
-    type: Boolean,
-    default: true
-   }
-},{timestamps:true});
+}, {
+    timestamps: true,
+    autoIndex: false 
+});
 
 
-const Room = mongoose.model("Room",roomSchema);
+const Room = mongoose.model("Room", roomSchema);
 module.exports = Room;

@@ -14,9 +14,6 @@ router.get("/", auth, roomController.getRooms);
 // 3. Detalhes de uma sala específica
 router.get("/:id", auth, roomController.getRoom);
 
-// 4. Ver as salas de um professor específico
-router.get("/teacher/:id", auth, roomController.getRoomsTeacher);
-
 // 5. Ver quem está na sala
 router.get("/:id/students", auth, roomController.getRoomStudents);
 

@@ -24,7 +24,7 @@ app.use(express.json());
 // Definição das Rotas
 app.use('/student', studentRoutes);
 app.use('/teacher', teacherRoutes); 
-app.use("/rooms", roomRoutes);
+app.use("/room", roomRoutes);
 
 
 // Conexão com MongoDB (Corrigido)

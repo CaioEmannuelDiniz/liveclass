@@ -13,7 +13,7 @@ router.post("/login", TeacherController.login);
 router.get("/profile", auth, TeacherController.getProfile);
 
 // Rota para o professor ver suas salas (Dashboard)
-router.get("/:id/rooms", auth, TeacherController.getTeacherRooms);
+router.get("/rooms", auth, TeacherController.getTeacherRooms);
 
 // Rota para o professor editar seus dados
 router.patch("/update", auth, TeacherController.update);

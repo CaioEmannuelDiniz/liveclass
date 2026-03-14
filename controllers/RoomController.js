@@ -1,29 +1,48 @@
 const Room = require("../models/Room");
 const Teacher = require("../models/Teacher");
+const Student = require("../models/Student");
 const mongoose = require("mongoose");
-const crypto = require("crypto"); // Módulo nativo para gerar o código
+const crypto = require("crypto");
 
 const RoomController = {
     // Criar uma nova sala e gerar código único
     create: async (req, res) => {
         try {
             const {
-                name,
-                teacherId
+                name
             } = req.body;
+            const teacherId = req.user.id;
 
-            // 1. Verificar se o professor existe
-            const teacher = await Teacher.findById(teacherId);
-            if (!teacher) {
-                return res.status(404).json({
-                    message: "Professor não encontrado."
+            let isUnique = false;
+            let roomCode; // Declarada aqui no topo da função
+
+            // 1. REGRA DE OURO: Verifica se já existe uma sala ATIVA
+            const activeRoom = await Room.findOne({
+                teacher: teacherId,
+                isActive: true
+            });
+
+            if (activeRoom) {
+                return res.status(400).json({
+                    message: "Você já possui uma sala ativa. Encerre-a antes de criar uma nova."
                 });
             }
 
-            // 2. Gerar um código aleatório de 6 caracteres (Ex: D8F2A1)
-            const roomCode = crypto.randomBytes(3).toString("hex").toUpperCase();
+            // 2. Loop de geração de código
+            while (!isUnique) {
+                // REMOVI O 'const' DAQUI DE BAIXO
+                roomCode = crypto.randomBytes(3).toString("hex").toUpperCase();
 
-            // 3. Criar a sala vinculada ao professor
+                const existingCode = await Room.findOne({
+                    code: roomCode
+                });
+
+                if (!existingCode) {
+                    isUnique = true;
+                }
+            }
+
+            // 3. Criar a sala (Agora o roomCode está acessível e preenchido)
             const newRoom = await Room.create({
                 name,
                 code: roomCode,
@@ -31,9 +50,10 @@ const RoomController = {
                 students: []
             });
 
-            // 4. Vincular a sala ao documento do professor (Relação 1:1)
-            teacher.room = newRoom._id;
-            await teacher.save();
+            // 4. Vincular ao professor
+            await Teacher.findByIdAndUpdate(teacherId, {
+                room: newRoom._id
+            });
 
             return res.status(201).json(newRoom);
         } catch (error) {
@@ -42,6 +62,7 @@ const RoomController = {
             });
         }
     },
+    
 
     // Entra no array da sala e adiciona ao estudante
     joinRoom: async (req, res) => {
@@ -61,7 +82,7 @@ const RoomController = {
                 }, {
                     new: true
                 }
-            );
+            ).populate("students", "name").populate("teacher", "name");
 
             if (!room) {
                 return res.status(404).json({
@@ -195,8 +216,6 @@ const RoomController = {
         }
     },
 
-    getRoomsTeacher: async (req, res) => {},
-
     // Buscar detalhes da sala pelo código (Útil para o Frontend antes do Socket)
     getByCode: async (req, res) => {
         try {
@@ -204,13 +223,15 @@ const RoomController = {
                 code
             } = req.params;
 
+            // Buscamos apenas se estiver ativa
             const room = await Room.findOne({
-                code
-            }).populate("teacher", "name");
+                code: code.toUpperCase(), // Garante que ignore o case (D8F2A1 vs d8f2a1)
+                isActive: true
+            }).populate("teacher", "name").populate("students", "name");
 
             if (!room) {
                 return res.status(404).json({
-                    message: "Código de sala inválido."
+                    message: "Sala não encontrada ou código inválido."
                 });
             }
 
@@ -242,6 +263,12 @@ const RoomController = {
             if (room.teacher.toString() !== req.user.id || req.user.entity !== "teacher") {
                 return res.status(403).json({
                     message: "Você não tem permissão para editar esta sala."
+                });
+            }
+
+            if (!room.isActive) {
+                return res.status(400).json({
+                    message: "Sala não esta ativa!"
                 });
             }
 
@@ -306,6 +333,12 @@ const RoomController = {
                 });
             }
 
+            if (!room.isActive) {
+                return res.status(400).json({
+                    message: "Sala não esta ativa!"
+                });
+            }
+
             const updatedRoom = await Room.findByIdAndUpdate(id, updateQuery, {
                     new: true
                 })
@@ -358,14 +391,15 @@ const RoomController = {
 
             // 4. Executa a desativação (Soft Delete)
             room.isActive = false;
-            await room.save(); // Salva a alteração no banco
 
             // 5. Remove a referência no Professor
             await Teacher.findByIdAndUpdate(room.teacher, {
-                $pull: {
-                    rooms: id
+                $set: {
+                    room: null
                 }
-            });
+            })
+
+            await room.save(); // Salva a alteração no banco
 
             return res.status(200).json({
                 message: "Sala desativada e removida da sua lista com sucesso."
