@@ -1,12 +1,11 @@
 const Student = require("../models/Student");
 const Teacher = require("../models/Teacher");
 const Room = require("../models/Room");
-const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/generateToken");;
 
 const StudentController = {
-    create: async (req, res) => {
+    register: async (req, res) => {
         try {
             const {
                 name,
@@ -86,7 +85,8 @@ const StudentController = {
         try {
             const {
                 id
-            } = req.params;
+            } = req.user.id;
+
             const student = await Student.findById(id).populate({
                 path: 'rooms',
                 populate: {
@@ -111,19 +111,12 @@ const StudentController = {
 
     getProfile: async (req, res) => {
         try {
-            const { id } = req.params;
-
-            const requesterId = req.user.id;
+            
+            const id = req.user.id;
             const requesterEntity = req.user.entity;
 
-            // 1. Validar formato do ID
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).json({
-                    message: "ID inválido."
-                });
-            }
 
-            if (requesterId !== id && requesterEntity !== "teacher") {
+            if (!id  && requesterEntity !== "teacher") {
                 // Se não for o dono e o token NÃO for de professor, nem precisa ir ao banco
                 return res.status(403).json({
                     message: "Acesso negado."
@@ -153,14 +146,8 @@ const StudentController = {
         try {
             const {
                 id
-            } = req.params;
+            } = req.user.id;;
 
-            // Dentro do método delete ou em um middleware:
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).json({
-                    message: "O formato do ID fornecido é inválido."
-                });
-            }
 
             //1. Verifica o ID existe no banco?
             const student = await Student.findById(id);

@@ -4,15 +4,15 @@ const StudentController = require("../controllers/StudentController");
 const auth = require("../middlewares/auth");
 
 // Cadastro
-router.post("/", StudentController.create);
+router.post("/register", StudentController.register);
 
 // Login
 router.post("/login",StudentController.login);
 // Ver perfil
-router.get("/:id",auth, StudentController.getProfile);
+router.get("/profile",auth, StudentController.getProfile);
 // Ver minhas salas
-router.get("/:id/rooms",auth, StudentController.getMyRooms); 
+router.get("/rooms",auth, StudentController.getMyRooms); 
 // Deletar perfil
-router.delete("/:id",auth,StudentController.delete);
+router.delete("/",auth,StudentController.delete);
 
 module.exports = router;
