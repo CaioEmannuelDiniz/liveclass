@@ -9,6 +9,6 @@ module.exports = (user, entity) => {
             entity: entity 
         },
         SECRET,
-        { expiresIn: process.env.expiresIn }
+        { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 };
