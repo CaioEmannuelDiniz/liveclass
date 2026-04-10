@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const roomController = require("../controllers/roomController");
+const roomController = require("../controllers/RoomController");
 const auth = require("../middlewares/auth"); // Certifique-se de importar seu middleware
 
 // --- ROTAS DE BUSCA (GET) ---
